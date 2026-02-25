@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import taskRoute from "./routes/task.routes";
+import jobRoute from "./routes/job.routes";
 
 export function createApp() {
   const app = express();
@@ -22,6 +23,7 @@ export function createApp() {
   });
 
   app.use("/api", taskRoute);
+  app.use("/api/jobs", jobRoute);
 
   return app;
 }
