@@ -33,10 +33,16 @@ Transcript:
 ${transcript}
 `;
 
-  const response = await ai.models.generateContent({
+  const stream = await ai.models.generateContentStream({
     model: "gemini-3-flash-preview",
     contents: prompt,
   });
 
-  return response.text;
+  let fullText = "";
+
+  for await (const chunk of stream) {
+    fullText += chunk.text ?? "";
+  }
+  console.log("full-text: ", fullText);
+  return fullText;
 }
