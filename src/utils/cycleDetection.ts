@@ -1,8 +1,37 @@
 import { Task } from "../types/task";
 
+export function propagateBlockedTasks(
+  tasks: Task[],
+  initialBlocked: Set<string>
+) {
+  const blocked = new Set(initialBlocked);
+
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+
+    for (const task of tasks) {
+      if (blocked.has(task.id)) continue;
+
+      const dependsOnBlocked = task.dependencies.some(dep =>
+        blocked.has(dep)
+      );
+
+      if (dependsOnBlocked) {
+        blocked.add(task.id);
+        changed = true;
+      }
+    }
+  }
+
+  return blocked;
+}
+
 export function detectCycles(tasks: Task[]) {
   const graph = new Map<string, string[]>();
-  tasks.forEach(task => {
+
+  tasks.forEach((task) => {
     graph.set(task.id, task.dependencies);
   });
 
@@ -12,7 +41,7 @@ export function detectCycles(tasks: Task[]) {
 
   function dfs(node: string) {
     if (inStack.has(node)) {
-      cycleNodes.add(node);
+      inStack.forEach((n) => cycleNodes.add(n));
       return;
     }
 
@@ -28,7 +57,7 @@ export function detectCycles(tasks: Task[]) {
     inStack.delete(node);
   }
 
-  tasks.forEach(task => dfs(task.id));
+  tasks.forEach((task) => dfs(task.id));
 
   return cycleNodes;
 }

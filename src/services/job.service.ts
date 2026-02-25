@@ -2,7 +2,7 @@ import { AppDataSource } from "../config/data-source";
 import { Job } from "../entities/Job";
 import { generateTasksFromTranscript } from "./llm.service";
 import { sanitizeDependencies } from "../utils/sanitizeDependencies";
-import { detectCycles } from "../utils/cycleDetection";
+import { detectCycles, propagateBlockedTasks } from "../utils/cycleDetection";
 import { TaskListSchema } from "../utils/schema";
 
 export async function processJob(jobId: string) {
@@ -30,9 +30,11 @@ export async function processJob(jobId: string) {
     tasks = sanitizeDependencies(tasks);
     const cycleNodes = detectCycles(tasks);
 
-    const finalTasks = tasks.map(task => ({
+    const blockedNodes = propagateBlockedTasks(tasks, cycleNodes);
+
+    const finalTasks = tasks.map((task) => ({
       ...task,
-      status: cycleNodes.has(task.id) ? "Blocked/Error" : "Valid",
+      status: blockedNodes.has(task.id) ? "Blocked/Error" : "Valid",
     }));
 
     job.result = finalTasks;

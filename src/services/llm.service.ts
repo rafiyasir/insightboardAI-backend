@@ -43,6 +43,5 @@ ${transcript}
   for await (const chunk of stream) {
     fullText += chunk.text ?? "";
   }
-  console.log("full-text: ", fullText);
   return fullText;
 }
