@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "cross-env": "^10.1.0",
-    "express": "^5.2.1"
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "pg": "^8.18.0",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
