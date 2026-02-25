@@ -140,3 +140,99 @@ We store: - Original transcript - Final validated graph - Timestamp
 -   Database persistence
 
 Level 1 complete.
+
+------------------------------------------------------------------------
+# InsightBoard AI --- Backend (Level 2)
+
+## Overview
+
+Level 2 upgrades the system to handle slow AI responses and prevent
+duplicate processing.
+
+Instead of processing transcripts synchronously, the backend now uses an
+asynchronous job architecture.
+
+------------------------------------------------------------------------
+
+## What Level 2 Adds
+
+1.  Asynchronous job processing
+2.  Job status tracking
+3.  Idempotent submission (duplicate prevention)
+4.  Background AI processing
+
+------------------------------------------------------------------------
+
+## Async Architecture
+
+Instead of:
+
+POST /api/generate → wait for AI → return result
+
+We now use:
+
+POST /api/jobs → returns jobId immediately\
+GET /api/jobs/:id → check job status
+
+This ensures:
+
+-   The frontend does not wait for long AI responses
+-   The server remains responsive
+-   The system scales better
+
+------------------------------------------------------------------------
+
+## Job Flow
+
+1.  User submits transcript
+2.  Backend creates a Job record with status = "processing"
+3.  Backend starts background processing
+4.  When AI completes:
+    -   Validate data
+    -   Sanitize dependencies
+    -   Detect cycles
+    -   Store result
+    -   Mark status = "completed"
+
+If something fails: - Status = "failed"
+
+------------------------------------------------------------------------
+
+## Idempotency Logic
+
+To prevent duplicate AI calls, we:
+
+1.  Generate a SHA-256 hash of the transcript
+2.  Store transcriptHash in the database (unique)
+3.  Before creating a new job:
+    -   Check if a job with the same hash already exists
+
+If found: - Return existing jobId - Do NOT call AI again
+
+This prevents duplicate cost and duplicate processing.
+
+------------------------------------------------------------------------
+
+## API Endpoints
+
+POST /api/jobs\
+Creates or reuses a job.
+
+Response: { "jobId": "uuid", "status": "processing" }
+
+GET /api/jobs/:id\
+Returns:
+
+{ "jobId": "uuid", "status": "processing \| completed \| failed",
+"result": \[...tasks\] or null }
+
+------------------------------------------------------------------------
+
+## Level 2 Status
+
+-   Async architecture implemented
+-   Idempotent submission implemented
+-   Background AI processing working
+-   Status polling supported
+
+Level 2 complete.
