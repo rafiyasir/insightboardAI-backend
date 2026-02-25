@@ -11,11 +11,13 @@
     "start:prod": "cross-env NODE_ENV=production node dist/server.js"
   },
   "dependencies": {
+    "@google/genai": "^1.42.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "pg": "^8.18.0",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
